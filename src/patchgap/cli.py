@@ -168,7 +168,10 @@ def cmd_mitigate(args, runner):
             continue
         try:
             res = mit.apply(m, args.persist)
-            print(f"  {res['status']}; verified active")
+            if res["status"] == "already-active-external":
+                print("  already in effect on this host via config patchgap did not write; nothing changed, nothing recorded")
+            else:
+                print(f"  {res['status']}; verified active")
         except MitigationError as e:
             print(f"  FAILED: {e}", file=sys.stderr)
             code = 3

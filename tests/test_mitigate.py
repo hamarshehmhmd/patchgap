@@ -38,8 +38,10 @@ class FakeSystem(FakeRunner):
                 open(pm, "w").write("\n".join(lines) + "\n")
                 return Result(0)
             if cmd[1:3] == ["-n", "-v"]:
-                conf = os.path.join(self.root, "etc/modprobe.d/patchgap-fake-mod.conf")
-                return Result(0, "install /bin/false\n" if os.path.exists(conf) else "insmod /lib/x.ko\n")
+                d = os.path.join(self.root, "etc/modprobe.d")
+                blocked = os.path.isdir(d) and any(
+                    f"install {cmd[3]} /bin/false" in open(os.path.join(d, n)).read() for n in os.listdir(d))
+                return Result(0, "install /bin/false\n" if blocked else "insmod /lib/x.ko\n")
         if cmd[0] == "sshd":
             dropin = os.path.join(self.root, "etc/ssh/sshd_config.d/00-patchgap-fake-sshd.conf")
             if cmd[1] == "-t":
@@ -196,3 +198,14 @@ def test_bundled_mitigations_plan(tmp_path):
     nft = feedmod.mitigation(f, "cve-2026-98432-nft")
     assert "ip hdrlength > 5" in nft["ruleset"] and "priority -310" in nft["ruleset"]
     assert list(tmp_path.iterdir()) == []
+
+
+def test_existing_external_block_is_left_alone(root, feed):
+    (root / "etc/modprobe.d").mkdir(parents=True)
+    (root / "etc/modprobe.d/distro.conf").write_text("install fakemod /bin/false\n")
+    (root / "proc/modules").write_text("nf_tables 1 0 - Live 0x0\n")
+    mit, sysm = mk(root)
+    m = feedmod.mitigation(feed, "fake-mod")
+    assert mit.apply(m)["status"] == "already-active-external"
+    assert not (root / "etc/modprobe.d/patchgap-fake-mod.conf").exists()
+    assert not (root / "state.json").exists()

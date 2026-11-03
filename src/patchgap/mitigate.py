@@ -107,6 +107,10 @@ class Mitigator:
         if m["id"] in self.state.data["applied"]:
             if self.verify(m):
                 return {"id": m["id"], "status": "already-active"}
+        elif self.verify(m):
+            # Something outside patchgap (distro, image, admin) already does this. Don't stack a
+            # second copy on top, and don't record it: reverting must never undo someone else's config.
+            return {"id": m["id"], "status": "already-active-external"}
         ops = getattr(self, "_" + m["kind"])(m, persist)
         for tool in m.get("requires", []):
             if not self.have(tool):

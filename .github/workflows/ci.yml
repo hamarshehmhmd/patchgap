@@ -44,15 +44,29 @@ jobs:
           if sudo nft list table inet cve_2026_98432; then echo 'table still there'; exit 1; fi
       - name: modprobe mitigation apply / revert
         run: |
-          if grep -q '^CONFIG_CRYPTO_USER_API_AEAD=m' /boot/config-$(uname -r); then
-            sudo patchgap mitigate CVE-2026-31431 --force --apply
-            if sudo modprobe algif_aead; then echo 'module still loads'; exit 1; fi
-            sudo patchgap revert CVE-2026-31431 --apply
-            sudo modprobe algif_aead && sudo modprobe -r algif_aead
-          else
+          if ! grep -q '^CONFIG_CRYPTO_USER_API_AEAD=m' /boot/config-$(uname -r); then
             echo "algif_aead not a module on this kernel; expect refusal"
             if sudo patchgap mitigate CVE-2026-31431 --force --apply; then exit 1; fi
+            exit 0
           fi
+          existing=$(grep -rlE '^\s*(install|blacklist)\s+algif_aead' /etc/modprobe.d /lib/modprobe.d /usr/lib/modprobe.d 2>/dev/null || true)
+          echo "existing blockers: ${existing:-none}"
+          if [ -n "$existing" ]; then
+            # the image already blocks it: patchgap must notice and change nothing
+            sudo patchgap mitigate CVE-2026-31431 --force --apply | tee out.txt
+            grep -q "already in effect" out.txt
+            test ! -e /etc/modprobe.d/patchgap-cve-2026-31431-algif-aead.conf
+            # then move the image's blocker aside (throwaway VM) to test the real apply path
+            for f in $existing; do sudo mv "$f" "$f.bak"; done
+          fi
+          sudo modprobe algif_aead && sudo modprobe -r algif_aead
+          sudo modprobe algif_aead   # loaded: apply must unload it
+          sudo patchgap mitigate CVE-2026-31431 --force --apply
+          if grep -q '^algif_aead ' /proc/modules; then echo 'still loaded'; exit 1; fi
+          if sudo modprobe algif_aead; then echo 'module still loads'; exit 1; fi
+          sudo patchgap revert CVE-2026-31431 --apply
+          sudo modprobe algif_aead && sudo modprobe -r algif_aead
+          for f in $existing; do sudo mv "$f.bak" "$f"; done
 
   containers:
     name: inventory on ${{ matrix.image }}
