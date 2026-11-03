@@ -134,9 +134,11 @@ CVE-2026-98432, and patchgap prints each mitigation's limits before applying it.
 
 ## Demo
 
-`docs/demo.gif` (top of this page) runs `check` on the example fleet, then `mitigate` (dry run, then
-`--apply` in a throwaway test root), `status` and `cleanup`. The narrated video is attached to the
-[v0.1.0 release](https://github.com/hamarshehmhmd/patchgap/releases/tag/v0.1.0).
+`docs/demo.gif` (top of this page) runs `check` on the example fleet, then a `mitigate` dry run, then
+shows the transcript of a real `--apply` / `status` / `revert` on a throwaway GitHub Actions runner
+([`demo/ci-apply.txt`](demo/ci-apply.txt), from this repo's CI). The narrated 2.5-minute video is attached to the
+[v0.1.0 release](https://github.com/hamarshehmhmd/patchgap/releases/tag/v0.1.0). It's rendered by
+[`demo/render.py`](demo/render.py).
 
 ## Development
 

@@ -1,0 +1,25 @@
+# real run on a throwaway GitHub Actions runner (Ubuntu 24.04, kernel 7.0.0-1017-azure)
+# CI run 41612142974, job 'real runner', Nov 3 2026
+$ sudo patchgap mitigate CVE-2026-98432 --force --apply
+CVE-2026-98432: fix-pending - fix 7.0.0-1020.21~24.04.1 is only in proposed pocket
+  ...
+  applied; verified active
+$ sudo nft list table inet cve_2026_98432
+table inet cve_2026_98432 {
+    chain input {
+        type filter hook input priority raw - 10; policy accept;
+        ip protocol tcp ip hdrlength > 5 counter packets 0 bytes 0 drop
+    }
+}
+$ sudo patchgap status
+runnervm48cm3  Ubuntu 24.04.5 LTS  kernel 7.0.0-1017-azure
+  CVE-2026-98432                     fix-pending + MITIGATED      fix 7.0.0-1020.21~24.04.1 is only in proposed pocket
+      mitigation cve-2026-98432-nft: active=yes, recorded
+  CVE-2026-31431 (Copy Fail)         not-affected                 ubuntu lists noble as not affected
+      mitigation cve-2026-31431-algif-aead: active=yes
+  CVE-2024-6387 (regreSSHion)        fixed                        running 1:9.6p1-3ubuntu13.20 >= 1:9.6p1-3ubuntu13.3
+      mitigation cve-2024-6387-logingracetime: active=no
+summary: fix-pending=1, fixed=1, not-affected=1   (feed generated 2026-11-03T09:26:43+00:00)
+exit 2: exposed, but every exposure has an active mitigation; keep patching
+$ sudo patchgap revert cve-2026-98432-nft --apply
+cve-2026-98432-nft: reverted
