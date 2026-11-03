@@ -1,0 +1,80 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install . pytest
+      - run: pytest -q
+
+  real-host:
+    name: real runner (check, then apply + revert mitigations)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -q && sudo apt-get install -y -q nftables
+      - run: sudo pip install --break-system-packages .
+      - name: check this runner (exit 0, 1 or 2 are all valid answers)
+        run: |
+          set +e; patchgap check -v; rc=$?; set -e
+          test $rc -le 2
+          patchgap check --json > report.json || test $? -le 2
+          python3 -c "import json; d=json.load(open('report.json')); print(d['summary'])"
+      - name: bundled nft rule passes nft -c
+        run: |
+          python3 -c "import yaml,patchgap.feed as f; open('r.nft','w').write(f.mitigation(f.load(),'cve-2026-98432-nft')['ruleset'])"
+          sudo nft -c -f r.nft
+      - name: nftables mitigation apply / verify / revert
+        run: |
+          sudo patchgap mitigate CVE-2026-98432 --force
+          sudo patchgap mitigate CVE-2026-98432 --force --apply
+          sudo nft list table inet cve_2026_98432
+          sudo patchgap status | tee status.txt
+          grep -q "cve-2026-98432-nft: active=yes, recorded" status.txt
+          curl -fsS -o /dev/null https://github.com   # normal traffic still works
+          sudo patchgap revert cve-2026-98432-nft --apply
+          if sudo nft list table inet cve_2026_98432; then echo 'table still there'; exit 1; fi
+      - name: modprobe mitigation apply / revert
+        run: |
+          if grep -q '^CONFIG_CRYPTO_USER_API_AEAD=m' /boot/config-$(uname -r); then
+            sudo patchgap mitigate CVE-2026-31431 --force --apply
+            if sudo modprobe algif_aead; then echo 'module still loads'; exit 1; fi
+            sudo patchgap revert CVE-2026-31431 --apply
+            sudo modprobe algif_aead && sudo modprobe -r algif_aead
+          else
+            echo "algif_aead not a module on this kernel; expect refusal"
+            if sudo patchgap mitigate CVE-2026-31431 --force --apply; then exit 1; fi
+          fi
+
+  containers:
+    name: inventory on ${{ matrix.image }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ["debian:bookworm", "ubuntu:24.04", "amazonlinux:2023", "rockylinux:9"]
+    container: ${{ matrix.image }}
+    steps:
+      - run: |
+          if command -v apt-get >/dev/null; then apt-get update -q && apt-get install -y -q python3 python3-yaml git; \
+          else dnf install -y -q python3 python3-pyyaml git; fi
+      - uses: actions/checkout@v4
+      - run: python3 -m patchgap inventory > inv.json || true
+        env: {PYTHONPATH: src}
+      - run: python3 -c "import json; d=json.load(open('inv.json')); print(d['os'], len(d['packages'])); assert d['packages']"
+      - run: set +e; PYTHONPATH=src python3 -m patchgap check; test $? -le 2
+
+  install-script:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: PATCHGAP_REF=${{ github.sha }} sh install.sh
+      - run: ~/.local/bin/patchgap --version || patchgap --version

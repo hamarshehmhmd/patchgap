@@ -1,0 +1,77 @@
+# FAKE test feed. CVE ids, versions and URLs below are made up for tests.
+schema: 1
+generated: '2000-01-01T00:00:00+00:00'
+cves:
+  - id: CVE-0000-0001
+    name: Fake Kernel Bug
+    component: kernel
+    summary: fake
+    mitigations: [fake-nft]
+    fixes:
+      - {distro: debian, release: bookworm, package: linux, status: fixed, version: 6.1.200-1, source: https://example.invalid/d}
+      - {distro: debian, release: bookworm, package: linux-6.12, status: fixed, version: 6.12.200-1~deb12u1, source: https://example.invalid/d}
+      - {distro: ubuntu, release: noble, package: linux, status: pending, version: 6.8.0-200.200, pocket: proposed, source: https://example.invalid/u}
+      - {distro: ubuntu, release: noble, package: linux-aws, status: fixed, version: 6.8.0-1100.100, source: https://example.invalid/u}
+      - {distro: ubuntu, release: jammy, package: linux, status: pending, version: 5.15.0-300.300, pocket: proposed, source: https://example.invalid/u}
+      - {distro: ubuntu, release: jammy, package: linux-hwe-6.8, status: pending, version: 6.8.0-200.200~22.04.1, pocket: proposed, source: https://example.invalid/u}
+      - {distro: ubuntu, release: focal, package: linux, status: vulnerable, source: https://example.invalid/u}
+      - {distro: ubuntu, release: trusty, package: linux, status: not-affected, source: https://example.invalid/u}
+      - {distro: rhel, release: '9', package: kernel, status: fixed, version: 5.14.0-700.1.1.el9_8, source: https://example.invalid/r}
+      - {distro: rhel, release: '7', package: kernel, status: not-affected, source: https://example.invalid/r}
+      - {distro: amzn, release: '2023', package: kernel, status: fixed, version: 6.1.200-300.400.amzn2023, source: https://example.invalid/a}
+      - {distro: amzn, release: '2023', package: kernel6.12, status: fixed, version: 6.12.200-100.100.amzn2023, source: https://example.invalid/a}
+  - id: CVE-0000-0002
+    name: null
+    component: package
+    binaries: {deb: [openssh-server], rpm: [openssh-server]}
+    summary: fake ssh bug
+    mitigations: [fake-sshd]
+    fixes:
+      - {distro: debian, release: bookworm, package: openssh, status: fixed, version: '1:9.2p1-2+deb12u9', source: https://example.invalid/d}
+      - {distro: ubuntu, release: noble, package: openssh, status: fixed, version: '1:9.6p1-3ubuntu13.9', source: https://example.invalid/u}
+      - {distro: rhel, release: '9', package: openssh, status: fixed, version: 8.7p1-40.el9, source: https://example.invalid/r}
+  - id: CVE-0000-0003
+    name: null
+    component: kernel
+    summary: fake module bug
+    mitigations: [fake-mod]
+    fixes:
+      - {distro: ubuntu, release: noble, package: linux, status: vulnerable, source: https://example.invalid/u}
+mitigations:
+  - id: fake-nft
+    cves: [CVE-0000-0001]
+    kind: nftables
+    summary: fake
+    table: {family: inet, name: fake_table}
+    ruleset: "table inet fake_table {\n}\n"
+    requires: [nft]
+    breaks: nothing
+    limits: none
+    sources: [https://example.invalid/m]
+  - id: fake-sshd
+    cves: [CVE-0000-0002]
+    kind: sshd
+    summary: fake
+    directives: {LoginGraceTime: '0'}
+    requires: [sshd]
+    breaks: nothing
+    limits: none
+    sources: [https://example.invalid/m]
+  - id: fake-mod
+    cves: [CVE-0000-0003]
+    kind: modprobe
+    summary: fake
+    modules: [fakemod]
+    kconfig: CONFIG_FAKEMOD
+    requires: [modprobe]
+    breaks: nothing
+    limits: none
+    sources: [https://example.invalid/m]
+  - id: fake-sysctl
+    cves: [CVE-0000-0003]
+    kind: sysctl
+    summary: fake
+    settings: {net.fake.enabled: '0'}
+    breaks: nothing
+    limits: none
+    sources: [https://example.invalid/m]

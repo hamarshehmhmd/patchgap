@@ -1,0 +1,180 @@
+[
+  {
+    "example": "made-up host for the README/demo; versions are real distro versions from the feed",
+    "host": "web-1",
+    "os": {
+      "id": "ubuntu",
+      "version_id": "24.04",
+      "codename": "noble",
+      "id_like": "",
+      "pretty": "Ubuntu 24.04.3 LTS"
+    },
+    "kernel": {
+      "release": "6.8.0-117-generic",
+      "version": "#117-Ubuntu SMP PREEMPT_DYNAMIC",
+      "machine": "x86_64"
+    },
+    "root": true,
+    "package_format": "deb",
+    "packages": [
+      {
+        "name": "linux-image-6.8.0-117-generic",
+        "version": "6.8.0-117.117",
+        "source": "linux-signed"
+      },
+      {
+        "name": "openssh-server",
+        "version": "1:9.6p1-3ubuntu13.3",
+        "source": "openssh"
+      }
+    ],
+    "builtin_modules": [],
+    "loaded_modules": [],
+    "kconfig": {},
+    "mitigation_checks": {
+      "cve-2026-98432-nft": "no",
+      "cve-2026-31431-algif-aead": "no",
+      "cve-2024-6387-logingracetime": "no"
+    }
+  },
+  {
+    "example": "made-up host for the README/demo; versions are real distro versions from the feed",
+    "host": "web-2",
+    "os": {
+      "id": "ubuntu",
+      "version_id": "24.04",
+      "codename": "noble",
+      "id_like": "",
+      "pretty": "Ubuntu 24.04.3 LTS"
+    },
+    "kernel": {
+      "release": "6.8.0-117-generic",
+      "version": "#117-Ubuntu SMP PREEMPT_DYNAMIC",
+      "machine": "x86_64"
+    },
+    "root": true,
+    "package_format": "deb",
+    "packages": [
+      {
+        "name": "linux-image-6.8.0-117-generic",
+        "version": "6.8.0-117.117",
+        "source": "linux-signed"
+      },
+      {
+        "name": "openssh-server",
+        "version": "1:9.6p1-3ubuntu13.3",
+        "source": "openssh"
+      }
+    ],
+    "builtin_modules": [],
+    "loaded_modules": [],
+    "kconfig": {},
+    "mitigation_checks": {
+      "cve-2026-98432-nft": "yes",
+      "cve-2026-31431-algif-aead": "no",
+      "cve-2024-6387-logingracetime": "no"
+    }
+  },
+  {
+    "example": "made-up host for the README/demo; versions are real distro versions from the feed",
+    "host": "db-1",
+    "os": {
+      "id": "debian",
+      "version_id": "12",
+      "codename": "bookworm",
+      "id_like": "",
+      "pretty": "Debian GNU/Linux 12 (bookworm)"
+    },
+    "kernel": {
+      "release": "6.1.0-41-amd64",
+      "version": "#1 SMP PREEMPT_DYNAMIC Debian 6.1.190-1 (2026-10-16)",
+      "machine": "x86_64"
+    },
+    "root": true,
+    "package_format": "deb",
+    "packages": [
+      {
+        "name": "linux-image-6.1.0-41-amd64",
+        "version": "6.1.190-1",
+        "source": "linux-signed-amd64"
+      },
+      {
+        "name": "openssh-server",
+        "version": "1:9.2p1-2+deb12u3",
+        "source": "openssh"
+      }
+    ],
+    "builtin_modules": [],
+    "loaded_modules": [],
+    "kconfig": {},
+    "mitigation_checks": {}
+  },
+  {
+    "example": "made-up host for the README/demo; versions are real distro versions from the feed",
+    "host": "api-1",
+    "os": {
+      "id": "rhel",
+      "version_id": "9.8",
+      "codename": "",
+      "id_like": "",
+      "pretty": "Red Hat Enterprise Linux 9.8 (Plow)"
+    },
+    "kernel": {
+      "release": "5.14.0-611.54.1.el9_7.x86_64",
+      "version": "#1 SMP PREEMPT_DYNAMIC",
+      "machine": "x86_64"
+    },
+    "root": true,
+    "package_format": "rpm",
+    "packages": [
+      {
+        "name": "kernel-core",
+        "version": "5.14.0-611.54.1.el9_7",
+        "source": "kernel"
+      },
+      {
+        "name": "kernel-core",
+        "version": "5.14.0-687.64.1.el9_8",
+        "source": "kernel"
+      },
+      {
+        "name": "openssh-server",
+        "version": "8.7p1-38.el9_4.1",
+        "source": "openssh"
+      }
+    ],
+    "builtin_modules": [],
+    "loaded_modules": [],
+    "kconfig": {},
+    "mitigation_checks": {}
+  },
+  {
+    "example": "made-up host for the README/demo; versions are real distro versions from the feed",
+    "host": "build-1",
+    "os": {
+      "id": "amzn",
+      "version_id": "2023",
+      "codename": "",
+      "id_like": "",
+      "pretty": "Amazon Linux 2023.9"
+    },
+    "kernel": {
+      "release": "6.1.168-203.330.amzn2023.x86_64",
+      "version": "#1 SMP PREEMPT_DYNAMIC",
+      "machine": "x86_64"
+    },
+    "root": true,
+    "package_format": "rpm",
+    "packages": [
+      {
+        "name": "kernel",
+        "version": "6.1.168-203.330.amzn2023",
+        "source": "kernel"
+      }
+    ],
+    "builtin_modules": [],
+    "loaded_modules": [],
+    "kconfig": {},
+    "mitigation_checks": {}
+  }
+]
